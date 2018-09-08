@@ -1,0 +1,12 @@
+#!/usr/bin/bash
+
+run_tests() {
+    echo "Running unit tests..." &&
+    ./test_tarsnap_prune.py &&
+    echo "Type-checking..." &&
+    mypy tarsnap_prune.py &&
+    echo "Running style checks..." &&
+    flake8 tarsnap_prune.py test_tarsnap_prune.py
+}
+
+run_tests && echo 'SUCCESS' || echo 'FAILURE'
