@@ -100,7 +100,7 @@ def parse_arcs(listing: str) -> Dict[str, List[Archive]]:
         ts = datetime.strptime(ts_str, "%Y-%m-%d %H:%M:%S")
         m = NAME_RE.fullmatch(name)
         if m is None:
-            raise RuntimeError("failed to parse line '{}'".format(line))
+            raise RuntimeError(f"failed to parse line '{line}'")
         base = m.group(1)
         result[base].append(Archive(name, ts))
     return result
@@ -113,13 +113,13 @@ def parse_keep_specs(spec: str) -> List[KeepSpec]:
         if m:
             result.append(KeepSpec(TIME_PATTERNS[m.group(2)], int(m.group(1))))
         else:
-            raise RuntimeError("invalid keep spec: '{}'".format(s))
+            raise RuntimeError(f"invalid keep spec: '{s}'")
     return result
 
 
 def print_arcs(arc_names: Iterable[str]) -> None:
     for name in sorted(arc_names):
-        print("  {}".format(name))
+        print(f"  {name}")
 
 
 def remaining_arc_names(arcs_dict: Dict[str, List[Archive]],
@@ -186,6 +186,5 @@ if __name__ == '__main__':
         sys.exit(1)
     except subprocess.CalledProcessError as e:
         cmd_str = ' '.join(e.cmd)
-        print("Command '{}' failed with exit status {}".format(cmd_str,
-                                                               e.returncode))
+        print(f"Command '{cmd_str}' failed with exit status {e.returncode}")
         sys.exit(1)
