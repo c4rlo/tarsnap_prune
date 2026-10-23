@@ -160,6 +160,38 @@ class TestLogic(unittest.TestCase):
         r3 = arc_names_to_delete([], [])
         self.assertEqual(list(r3), [])
 
+    def test_pruning_is_idempotent(self):
+        timestamps = [
+            "2026-01-05 12:34:56",
+            "2026-01-05 12:34:56",  # Equal timestamps.
+            "2026-01-05 12:34:55",
+            "2026-01-05 12:33:00",
+            "2026-01-05 11:00:00",
+            "2026-01-04 00:00:00",  # Previous ISO week.
+            "2026-01-01 00:00:00",
+            "2025-12-31 00:00:00",  # Same ISO week, different year.
+            "2025-10-01 00:00:00",  # Gaps between occupied periods.
+            "2023-01-01 00:00:00",
+        ]
+        archives = [
+            Archive(str(i), datetime.fromisoformat(ts))
+            for i, ts in enumerate(timestamps)
+        ]
+        rules = [
+            [],
+            parse_keep_specs("2d,3w,2mon,2y"),
+            parse_keep_specs("0d,2mon"),
+            *([ks(unit, count)] for unit in TIME_PATTERNS for count in (0, 1, 2, 20)),
+        ]
+        for arcs in ([], archives, archives[::-1]):
+            for keep_specs in rules:
+                with self.subTest(names=[a.name for a in arcs], rules=keep_specs):
+                    deleted = set(arc_names_to_delete(arcs, keep_specs))
+                    survivors = [a for a in arcs if a.name not in deleted]
+                    self.assertEqual(
+                        list(arc_names_to_delete(survivors, keep_specs)), []
+                    )
+
 
 class TestParsing(unittest.TestCase):
     def test_parse_arcs(self):
