@@ -181,8 +181,12 @@ def run(keep_specs: Iterable[KeepSpec], keyfile: str | None, dry_run: bool) -> N
     report_action(arcs_dict, to_delete, dry_run)
     if not dry_run:
         if to_delete:
-            print(f"Deleting {len(to_delete)} archive{plural_s(to_delete)}...")
+            print(
+                f"Deleting {len(to_delete)} archive{plural_s(to_delete)} (may be slow, "
+                "please be patient)..."
+            )
             tarsnap.delete(to_delete)
+            print("Success.")
         else:
             print("Nothing to delete.")
 
